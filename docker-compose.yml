@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: smartlab
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
