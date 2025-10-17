@@ -1,10 +1,12 @@
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
-import { runDiscovery } from './active-discovery.js'
-import discover from './routes/discover.js';
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { runDiscovery } from "./active-discovery.js";
+import discover from "./routes/discover.js";
+import auth from "./routes/auth.js";
 
-const app = new Hono()
+const app = new Hono();
 
+app.route("/api/v1/auth", auth);
 app.route("/api/v1/discover", discover);
 
 // todo lights
@@ -12,12 +14,15 @@ app.route("/api/v1/discover", discover);
 // todo thermometer
 // todo ai
 
-serve({
-  fetch: app.fetch,
-  port: 3000
-}, (info) => {
-  console.log(`Gateway server running on port : ${info.port}`);
-});
+serve(
+  {
+    fetch: app.fetch,
+    port: 3000,
+  },
+  (info) => {
+    console.log(`Gateway server running on port : ${info.port}`);
+  }
+);
 
 setInterval(() => {
   runDiscovery();
