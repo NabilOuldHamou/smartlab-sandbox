@@ -81,7 +81,7 @@ devices.delete("/:id", async (c) => {
     },
   });
 
-  return c.json({ message: "Device delete successfully" });
+  return c.json({ message: "Device deleted successfully" });
 });
 
 export default devices;
