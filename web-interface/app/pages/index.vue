@@ -36,7 +36,6 @@ const refVariable = ref("#000");
             v-model="refVariable"
             v-slot="{ show }"
             @change="console.log('New color:', $event)"
-            @close="console.log('ColorPicker is closed')"
           >
             <button
               @click="show"
