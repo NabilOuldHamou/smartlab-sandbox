@@ -3,11 +3,13 @@ import { Hono } from "hono";
 import { runDiscovery } from "./active-discovery.js";
 import discover from "./routes/discover.js";
 import auth from "./routes/auth.js";
+import devices from "./routes/devices.js";
 
 const app = new Hono();
 
 app.route("/api/v1/auth", auth);
 app.route("/api/v1/discover", discover);
+app.route("/api/v1/devices", devices);
 
 // todo lights
 // todo motion
