@@ -3,8 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)  
-- [Features](#features)  
-- [Architecture & Components](#architecture--components)  
+- [Architecture & Components](#architecture-components)  
 - [Getting Started](#getting-started)  
   - [Prerequisites](#prerequisites)  
   - [Installation](#installation)  
@@ -15,3 +14,4 @@
 
 ## Introduction
 
+## Architecture & Components
