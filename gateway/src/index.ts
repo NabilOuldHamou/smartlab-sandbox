@@ -11,15 +11,12 @@ app.route("/api/v1/auth", auth);
 app.route("/api/v1/discover", discover);
 app.route("/api/v1/devices", devices);
 
-// todo lights
-// todo motion
-// todo thermometer
 // todo ai
 
 serve(
   {
     fetch: app.fetch,
-    port: 3000,
+    port: 3001,
   },
   (info) => {
     console.log(`Gateway server running on port : ${info.port}`);
