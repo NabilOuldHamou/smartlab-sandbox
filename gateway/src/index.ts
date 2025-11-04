@@ -23,8 +23,8 @@ serve(
   }
 );
 
-setInterval(() => {
-  runDiscovery();
-}, 30000);
+setInterval(async () => {
+  await runDiscovery();
+}, 1000);
 
 export default app;
