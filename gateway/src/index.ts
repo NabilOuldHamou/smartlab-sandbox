@@ -4,8 +4,11 @@ import { runDiscovery } from "./active-discovery.js";
 import discover from "./routes/discover.js";
 import auth from "./routes/auth.js";
 import devices from "./routes/devices.js";
+import { cors } from "hono/cors";
 
 const app = new Hono();
+
+app.use(cors());
 
 app.route("/api/v1/auth", auth);
 app.route("/api/v1/discover", discover);

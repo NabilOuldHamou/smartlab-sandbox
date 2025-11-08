@@ -9,16 +9,7 @@ import CardTitle from "~/components/ui/card/CardTitle.vue";
 import Slider from "~/components/ui/slider/Slider.vue";
 import Switch from "~/components/ui/switch/Switch.vue";
 
-const refVariable = ref("#000");
-const caca = ref(null);
-caca.value = await $fetch("http://localhost:3001/api/v1/devices", {
-  headers: {
-    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtaDVlZzR2YzAwMDBrMm8wMHk0aXl1azgiLCJleHAiOjE3NjE1OTM5OTB9.jzeK53ysyO7WhmPL2vFYye_IA0GsrZAo1a3DKigyLfo"
-  }
-})
-
-console.log(caca.value)
-
+const refVariable = ref("#fff");
 </script>
 
 <template>
