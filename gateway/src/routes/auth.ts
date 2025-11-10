@@ -12,10 +12,16 @@ auth.use("/session", verifyToken);
 auth.get("/session", async (c) => {
   const authorization = c.req.header("Authorization")!;
   const oldToken = authorization.split(" ")[1];
-  const payload = await verify(oldToken, process.env.JWT_SECRET!);
-  const user = await prisma.user.findUnique({
+  const verified = (await verify(oldToken, process.env.JWT_SECRET!)) as {
+    id?: string;
+  } | null;
+  if (!verified || typeof verified.id !== "string") {
+    return c.json({ error: "Invalid token" }, 401);
+  }
+
+  const user = await prisma.users.findUnique({
     where: {
-      id: payload.id,
+      id: verified.id,
     },
     omit: {
       password: true,
@@ -42,7 +48,7 @@ auth.post("/login", async (c) => {
     return c.json({ error: "Invalid request" }, 400);
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: {
       email: body.email,
     },
@@ -81,7 +87,7 @@ auth.post("/register", async (c) => {
   const encryptedPassword = await bcrypt.hash(body.password, 14);
 
   try {
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         email: body.email,
         password: encryptedPassword,

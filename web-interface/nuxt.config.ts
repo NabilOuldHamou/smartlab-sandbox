@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "nuxt-color-picker",
     "@sidebase/nuxt-auth",
+    "@pinia/nuxt",
   ],
   vite: {
     plugins: [tailwindcss()],

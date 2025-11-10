@@ -7,7 +7,7 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model User {
+model Users {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     email     String   @unique
@@ -15,10 +15,9 @@ model User {
     password  String
 }
 
-model Appliance {
+model Devices {
     id           String @id @default(cuid())
-    deviceId     String @unique
-    address      String
+    address      String @unique
     type         String
     capabilities Json
     preferences  Json

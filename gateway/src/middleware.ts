@@ -1,5 +1,6 @@
 import type { Context } from "hono";
 import { verify } from "hono/jwt";
+import "dotenv/config";
 
 export const verifyToken = async (c: Context, next: () => Promise<void>) => {
   const authorization = c.req.header("Authorization");

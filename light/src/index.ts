@@ -1,11 +1,11 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import telemetry from "./routes/telemetry.js";
+import state from "./routes/state.js";
 import { searchForGateways } from "./active-search.js";
 
 const app = new Hono();
 
-app.route("/api/v1/telemetry", telemetry);
+app.route("/api/v1/state", state);
 serve(
   {
     fetch: app.fetch,

@@ -1,23 +1,25 @@
 export interface State {
-    isOn: boolean
-    brightness: number
-    colour: string
+  power: boolean;
+  brightness: number;
+  color: string;
 }
 
-export interface DefaultState {
-    readonly isOn: boolean
-    readonly brightness: number
-    readonly colour: string
-}
+export const registration = {
+  registered: false,
+  id: "",
+};
 
 export const currentState: State = {
-    isOn: true,
-    brightness: 50,
-    colour: "#000"
-}
+  power: true,
+  brightness: 50,
+  color: "#000",
+};
 
-export const defaultSettings: DefaultState = {
-    isOn: true,
-    brightness: 50,
-    colour: "#000"
-}
+export const capabilities = {
+  power: "boolean",
+  brightness: {
+    range: [1, 100],
+    type: "number",
+  },
+  color: "hex",
+};
