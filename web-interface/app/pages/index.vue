@@ -1,24 +1,7 @@
 <script setup lang="ts">
-import Button from "~/components/ui/button/Button.vue";
-import Card from "~/components/ui/card/Card.vue";
-import CardContent from "~/components/ui/card/CardContent.vue";
-import CardDescription from "~/components/ui/card/CardDescription.vue";
-import CardFooter from "~/components/ui/card/CardFooter.vue";
-import CardHeader from "~/components/ui/card/CardHeader.vue";
-import CardTitle from "~/components/ui/card/CardTitle.vue";
-import Slider from "~/components/ui/slider/Slider.vue";
-import Switch from "~/components/ui/switch/Switch.vue";
+import { useDevicesStore } from "~/stores/device.store";
 
-const refVariable = ref("#000");
-const caca = ref(null);
-caca.value = await $fetch("http://localhost:3001/api/v1/devices", {
-  headers: {
-    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImNtaDVlZzR2YzAwMDBrMm8wMHk0aXl1azgiLCJleHAiOjE3NjE1OTM5OTB9.jzeK53ysyO7WhmPL2vFYye_IA0GsrZAo1a3DKigyLfo"
-  }
-})
-
-console.log(caca.value)
-
+const { devices, isReady } = useDevicesStore();
 </script>
 
 <template>
@@ -31,35 +14,8 @@ console.log(caca.value)
         ROOM LIGHT
       </div>
     </div>
-    <div class="py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle class="flex items-center justify-between">
-            Bedroom
-            <Switch />
-          </CardTitle>
-          <CardDescription>light_bulb</CardDescription>
-        </CardHeader>
-        <CardContent class="flex gap-6">
-          <color-picker
-            v-model="refVariable"
-            v-slot="{ show }"
-            @change="console.log('New color:', $event)"
-          >
-            <button
-              @click="show"
-              type="button"
-              class="flex items-center justify-center w-8 h-8 rounded-full border border-gray-200 shadow-sm"
-              :style="'background-color: ' + refVariable"
-            ></button>
-          </color-picker>
-          <Slider :default-value="[33]" :max="100" :step="1" />
-        </CardContent>
-        <CardFooter class="flex items-center justify-between">
-          <p class="text-sm text-muted-foreground">room-lamp</p>
-          <Button variant="outline">Reset preferences</Button>
-        </CardFooter>
-      </Card>
+    <div class="py-10" v-for="d in devices" :key="d.id">
+      <LightController :device="d" v-if="d.type == `light_bulb`" />
     </div>
   </div>
 </template>

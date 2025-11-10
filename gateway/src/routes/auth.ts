@@ -1,10 +1,46 @@
 import { Hono } from "hono";
-import { sign } from "hono/jwt";
+import { sign, verify } from "hono/jwt";
 import "dotenv/config";
 import { prisma } from "../prisma-client.js";
 import bcrypt from "bcrypt";
+import { verifyToken } from "../middleware.js";
 
 const auth = new Hono();
+
+auth.use("/session", verifyToken);
+
+auth.get("/session", async (c) => {
+  const authorization = c.req.header("Authorization")!;
+  const oldToken = authorization.split(" ")[1];
+  const verified = (await verify(oldToken, process.env.JWT_SECRET!)) as {
+    id?: string;
+  } | null;
+  if (!verified || typeof verified.id !== "string") {
+    return c.json({ error: "Invalid token" }, 401);
+  }
+
+  const user = await prisma.users.findUnique({
+    where: {
+      id: verified.id,
+    },
+    omit: {
+      password: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    return c.json({ error: "User not found" }, 404);
+  }
+
+  const newPayload = {
+    id: user.id,
+    exp: Math.floor(Date.now() / 1000) + 3600 * 24, // Token expires in 24 hours
+  };
+
+  const token = await sign(newPayload, process.env.JWT_SECRET!);
+  return c.json({ token, user });
+});
 
 auth.post("/login", async (c) => {
   const body = await c.req.json();
@@ -12,7 +48,7 @@ auth.post("/login", async (c) => {
     return c.json({ error: "Invalid request" }, 400);
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: {
       email: body.email,
     },
@@ -51,7 +87,7 @@ auth.post("/register", async (c) => {
   const encryptedPassword = await bcrypt.hash(body.password, 14);
 
   try {
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         email: body.email,
         password: encryptedPassword,

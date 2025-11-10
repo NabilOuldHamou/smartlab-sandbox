@@ -2,34 +2,20 @@ import { Hono } from "hono";
 import { prisma } from "../prisma-client.js";
 import { verify } from "hono/jwt";
 import "dotenv/config";
+import { verifyToken } from "../middleware.js";
 
 const devices = new Hono();
 
 /**
  * MIDDLEWARE CHECKS FOR JWT TOKEN VALIDITY
  */
-devices.use(async (c, next) => {
-  const authorization = c.req.header("Authorization");
-  if (!authorization) {
-    c.status(401);
-    return c.json({ error: "Unauthorized" });
-  }
-
-  try {
-    await verify(authorization, process.env.JWT_SECRET!);
-  } catch (e) {
-    c.status(401);
-    return c.json({ error: "Invalid token" });
-  }
-
-  await next();
-});
+devices.use(verifyToken);
 
 /**
  * Get all devices
  */
 devices.get("/", async (c) => {
-  const devices = await prisma.appliance.findMany();
+  const devices = await prisma.devices.findMany();
   return c.json({ devices });
 });
 
@@ -38,13 +24,11 @@ devices.get("/", async (c) => {
  */
 devices.get("/:id", async (c) => {
   const id = c.req.param("id");
-
-  const device = await prisma.appliance.findFirst({
+  const device = await prisma.devices.findFirst({
     where: {
       id: id,
     },
   });
-
   return c.json({ device });
 });
 
@@ -55,18 +39,30 @@ devices.post("/:id/action", async (c) => {
   const id = c.req.param("id");
   const body = await c.req.json();
 
-  const device = await prisma.appliance.update({
-    where: { id: id },
-    data: {
-      preferences: {
-        state: body.state,
-        colour: body.colour,
-        brightness: body.brightness,
-      },
+  const device = await prisma.devices.findFirst({
+    where: {
+      id: id,
     },
   });
 
-  return c.json({ device });
+  const req = await fetch(device?.address + "/api/v1/state", {
+    method: "POST",
+    body: JSON.stringify({
+      power: body.power,
+      brightness: body.brightness,
+      color: body.color,
+    }),
+  });
+  const res = await req.json();
+
+  const updatedDevice = await prisma.devices.update({
+    where: { id: id },
+    data: {
+      preferences: res.currentState,
+    },
+  });
+
+  return c.json({ device: updatedDevice });
 });
 
 /**
@@ -75,7 +71,7 @@ devices.post("/:id/action", async (c) => {
 devices.delete("/:id", async (c) => {
   const id = c.req.param("id");
 
-  await prisma.appliance.delete({
+  await prisma.devices.delete({
     where: {
       id: id,
     },
