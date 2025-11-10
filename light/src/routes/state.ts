@@ -10,7 +10,7 @@ state.get("/", (c) => {
 state.post("/", async (c) => {
   const body = await c.req.json();
 
-  if (!body.power && !body.brightness && !body.color) {
+  if (body.power === undefined && body.brightness === undefined && body.color === undefined) {
     return c.json({ error: "Missing capabilities" }, 400);
   }
   currentState.power = body.power;
