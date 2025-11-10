@@ -1,6 +1,8 @@
 import { prisma } from "../prisma-client.js";
 import { Hono } from "hono";
 
+const SUPPORTED_DEVICE_TYPES = ['light_bulb', 'motion_sensor', 'thermometer'] as const;
+
 const discover = new Hono();
 
 discover.post("/", async (c) => {
@@ -10,11 +12,7 @@ discover.post("/", async (c) => {
     return c.json({ error: "address and type are required" }, 400);
   }
 
-  if (
-    body.type !== "light_bulb" &&
-    body.type !== "motion_sensor" &&
-    body.type !== "thermometer"
-  ) {
+  if (!SUPPORTED_DEVICE_TYPES.includes(body.type)) {
     return c.json({ error: "Device type not supported." }, 400);
   }
 
