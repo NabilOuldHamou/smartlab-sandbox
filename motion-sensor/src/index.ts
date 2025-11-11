@@ -1,11 +1,12 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import motion from "./routes/motion.js";
+import state from "./routes/state.js";
 import { searchForGateways } from "./active-search.js";
+import { checkMovement } from "./event-simulator.js";
 
 const app = new Hono();
 
-app.route("/api/v1/motion", motion);
+app.route("/api/v1/state", state);
 serve(
   {
     fetch: app.fetch,
@@ -16,7 +17,10 @@ serve(
   }
 );
 
-// RUN DISCOVERY ON STARTUP
 await searchForGateways();
+
+setInterval(() => {
+  checkMovement();
+}, 2000);
 
 export default app;

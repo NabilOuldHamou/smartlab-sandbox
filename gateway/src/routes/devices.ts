@@ -3,6 +3,7 @@ import { prisma } from "../prisma-client.js";
 import { verify } from "hono/jwt";
 import "dotenv/config";
 import { verifyToken } from "../middleware.js";
+import { evaluateRule } from "../rules-engine.js";
 
 const devices = new Hono();
 
@@ -63,6 +64,20 @@ devices.post("/:id/action", async (c) => {
   });
 
   return c.json({ device: updatedDevice });
+});
+
+/**
+ * Receive event from device
+ */
+devices.post("/:id/event", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json();
+
+  await evaluateRule(body.event);
+
+  // todo: send to websocket clients
+
+  return c.json({ message: "Event received" }, 200);
 });
 
 /**

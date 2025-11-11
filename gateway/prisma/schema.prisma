@@ -22,3 +22,10 @@ model Devices {
     capabilities Json
     preferences  Json
 }
+
+model Rules {
+    id String @id @default(cuid())
+    name String @unique
+    when Json
+    then Json
+}
