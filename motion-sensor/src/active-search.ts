@@ -47,7 +47,9 @@ export async function searchForGateways(timeout = 10000) {
           address: process.env.DEVICE_ADDRESS!,
           type: "motion_sensor",
           preferences: currentState,
-          capabilities: {},
+          capabilities: {
+            events: ["MOTION_DETECTED", "NO_MOTION"],
+          },
         };
         try {
           const req = await fetch(message.route, {
@@ -59,6 +61,9 @@ export async function searchForGateways(timeout = 10000) {
           const data = await req.json();
           registration.registered = true;
           registration.id = data.device.id;
+          registration.token = data.token;
+          registration.eventRoute = data.routes.events;
+          registration.heartbeatRoute = data.routes.heartbeat;
           console.log(
             "Device registered successfully. Assigned ID:",
             registration.id
@@ -69,8 +74,11 @@ export async function searchForGateways(timeout = 10000) {
       } else if (message.type === "DEVICE_ALREADY_REGISTERED") {
         registration.registered = true;
         registration.id = message.id;
+        registration.token = message.token;
         currentState.motionDetected = message.savedState.motionDetected;
         currentState.lastSeen = message.savedState.lastSeen;
+        registration.eventRoute = message.routes.events;
+        registration.heartbeatRoute = message.routes.heartbeat;
         console.log(
           "Device already registered. Using existing ID:",
           registration.id

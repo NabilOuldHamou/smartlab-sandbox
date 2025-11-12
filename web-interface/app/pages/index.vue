@@ -1,21 +1,20 @@
 <script setup lang="ts">
+import MotionController from "~/components/MotionController.vue";
 import { useDevicesStore } from "~/stores/device.store";
+definePageMeta({
+  layout: "normal",
+});
 
 const { devices, isReady } = useDevicesStore();
 </script>
 
 <template>
-  <div class="grid grid-cols-3">
-    <div class="col-span-2 relative">
-      <NuxtImg src="/floorplan.png" class="min-h-screen" />
-      <div
-        class="absolute top-[20%] left-[20%] z-50 transform -translate-x-1/2 -translate-y-1/2 bg-yellow-600/70 px-3 py-1 rounded"
-      >
-        ROOM LIGHT
+  <main class="w-full max-w-4xl mx-auto px-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+      <div v-for="d in devices" :key="d.id" class="w-full">
+        <LightController v-if="d.type === 'light_bulb'" :device="d" />
+        <MotionController v-else-if="d.type === 'motion_sensor'" :device="d" />
       </div>
     </div>
-    <div class="py-10" v-for="d in devices" :key="d.id">
-      <LightController :device="d" v-if="d.type == `light_bulb`" />
-    </div>
-  </div>
+  </main>
 </template>

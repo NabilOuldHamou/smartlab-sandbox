@@ -1,6 +1,7 @@
 import dgram from "dgram";
 import { prisma } from "./prisma-client.js";
 import "dotenv/config";
+import { sign } from "hono/jwt";
 
 const DISCOVERY_PORT = 51234;
 const DISCOVERY_MSG = JSON.stringify({ type: "GATEWAY_ACTIVE_DISCOVERY" });
@@ -9,7 +10,7 @@ export async function runDiscovery(timeout = 5000) {
   const sock = dgram.createSocket("udp4");
   sock.bind(() => {
     sock.setBroadcast(true);
-    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, "192.168.1.255");
+    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, "172.20.10.15");
   });
 
   sock.on("message", async (msg, rinfo) => {
@@ -24,10 +25,25 @@ export async function runDiscovery(timeout = 5000) {
         });
 
         if (device != null) {
+          const payload = {
+            id: device.id,
+            exp: Math.floor(Date.now() / 1000) + 3600 * 24, // Token expires in 24 hours
+          };
+          const token = await sign(payload, process.env.JWT_SECRET!);
+
           const res = JSON.stringify({
             type: "DEVICE_ALREADY_REGISTERED",
+            token,
             gatewayAdress: process.env.GATEWAY_ADDRESS!,
             id: device.id,
+            routes: {
+              events: `${process.env.GATEWAY_ADDRESS!}/api/v1/devices/${
+                device.id
+              }/event`,
+              heartbeat: `${process.env.GATEWAY_ADDRESS!}/api/v1/devices/${
+                device.id
+              }/heartbeat`,
+            },
             savedState: {
               brightness: (device.preferences! as any).brightness,
               color: (device.preferences! as any).color,

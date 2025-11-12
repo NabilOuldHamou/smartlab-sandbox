@@ -1,5 +1,5 @@
 <template>
-  <main class="container mx-auto">
+  <NuxtLayout>
     <NuxtPage />
-  </main>
+  </NuxtLayout>
 </template>

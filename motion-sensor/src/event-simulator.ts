@@ -1,6 +1,7 @@
-import { currentState } from "./stateRegistry.js";
+import { sensitiveHeaders } from "http2";
+import { currentState, registration } from "./stateRegistry.js";
 
-export function checkMovement() {
+export async function checkMovement() {
   let motionDetected = false;
   if (Math.random() < 0.3) {
     console.log("Motion detected!");
@@ -10,12 +11,47 @@ export function checkMovement() {
   if (motionDetected) {
     if (!currentState.motionDetected) {
       currentState.motionDetected = true;
+      currentState.lastSeen = Date.now();
+
+      await fetch(registration.eventRoute, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${registration.token}`,
+        },
+        body: JSON.stringify({
+          event: {
+            type: "MOTION_DETECTED",
+            sensor: registration.id,
+          },
+          state: currentState,
+        }),
+      });
     }
-    currentState.lastSeen = Date.now();
   } else {
-    if (currentState.lastSeen && Date.now() - currentState.lastSeen > 5000) {
+    if (
+      currentState.motionDetected &&
+      currentState.lastSeen &&
+      Date.now() - currentState.lastSeen > 5000
+    ) {
       console.log("No motion detected for 5 seconds. Resetting state.");
       currentState.motionDetected = false;
+      currentState.lastSeen = null;
+
+      await fetch(registration.eventRoute, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${registration.token}`,
+        },
+        body: JSON.stringify({
+          event: {
+            type: "NO_MOTION_DETECTED",
+            sensor: registration.id,
+          },
+          state: currentState,
+        }),
+      });
     }
   }
 }

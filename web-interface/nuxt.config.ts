@@ -12,6 +12,11 @@ export default defineNuxtConfig({
     "@sidebase/nuxt-auth",
     "@pinia/nuxt",
   ],
+  nitro: {
+    experimental: {
+      websocket: true,
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
   },

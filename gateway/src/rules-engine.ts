@@ -27,6 +27,7 @@ export async function evaluateRule(event: any) {
         const actionFunc = actions[actionName];
         if (typeof actionFunc !== "function") continue;
         await actionFunc(actionObj.params);
+        console.log(`Executed action ${actionName} for rule ${rule.id}`);
       }
     }
   }

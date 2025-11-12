@@ -19,8 +19,8 @@ serve(
 
 await searchForGateways();
 
-setInterval(() => {
-  checkMovement();
+setInterval(async () => {
+  await checkMovement();
 }, 2000);
 
 export default app;

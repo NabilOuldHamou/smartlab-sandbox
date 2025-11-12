@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 
 export interface Device {
   id: string;
+  name: string;
   address: string;
   type: string;
   capabilities: any;
@@ -37,6 +38,13 @@ export const useDevicesStore = defineStore("devices", {
       this.initialized = true;
       this.loading = false;
     },
+    refreshDevice(device: Device) {
+      this.devices.forEach((d, index) => {
+        if (d.id === device.id) {
+          this.devices[index] = device;
+        }
+      });
+    },
     async updateDevice(id: string, data: any) {
       const { token } = useAuth();
       const result = await $fetch(
@@ -47,6 +55,25 @@ export const useDevicesStore = defineStore("devices", {
             Authorization: token.value!,
           },
           body: data,
+        }
+      );
+
+      this.devices.forEach((device) => {
+        if (device.id === id) {
+          Object.assign(device, result);
+        }
+      });
+    },
+    async renameDevice(id: string, name: string) {
+      const { token } = useAuth();
+      const result = await $fetch(
+        `http://localhost:3001/api/v1/devices/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: token.value!,
+          },
+          body: { name },
         }
       );
 

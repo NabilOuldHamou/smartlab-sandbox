@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { prisma } from "../prisma-client.js";
-import { verify } from "hono/jwt";
 import "dotenv/config";
 import { verifyToken } from "../middleware.js";
 import { evaluateRule } from "../rules-engine.js";
+import { ioServer } from "../index.js";
 
 const devices = new Hono();
 
@@ -66,6 +66,20 @@ devices.post("/:id/action", async (c) => {
   return c.json({ device: updatedDevice });
 });
 
+devices.put("/:id", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json();
+
+  const updatedDevice = await prisma.devices.update({
+    where: { id: id },
+    data: {
+      name: body.name,
+    },
+  });
+
+  return c.json({ device: updatedDevice });
+});
+
 /**
  * Receive event from device
  */
@@ -73,9 +87,29 @@ devices.post("/:id/event", async (c) => {
   const id = c.req.param("id");
   const body = await c.req.json();
 
+  const payload_id = (c as any).get("payload_id");
+  if (payload_id !== id) {
+    console.warn(
+      `Payload ID ${payload_id} does not match device ID ${id}, potential tampering detected.`
+    );
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
   await evaluateRule(body.event);
 
-  // todo: send to websocket clients
+  await prisma.devices.update({
+    where: { id: id },
+    data: {
+      preferences: body.state,
+    },
+  });
+
+  ioServer.emit("device-event", {
+    deviceId: id,
+    event: body.event,
+    state: body.state,
+    timestamp: new Date().toISOString(),
+  });
 
   return c.json({ message: "Event received" }, 200);
 });
