@@ -6,6 +6,8 @@ echo "Light installing and building..."
 cd ./light && pnpm install && pnpm dev &
 echo "Motion Sensor installing and building..."
 cd ./motion-sensor && pnpm install && pnpm dev &
+echo "thermo installing and building..."
+cd ./thermo && pnpm install && pnpm dev &
 echo "web-app installing and building..."
 cd ./web-interface && pnpm install && pnpm dev &
 echo "All services started."
