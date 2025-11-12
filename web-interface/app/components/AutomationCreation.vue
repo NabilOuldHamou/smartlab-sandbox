@@ -16,6 +16,15 @@ import SelectLabel from "./ui/select/SelectLabel.vue";
 import SelectItem from "./ui/select/SelectItem.vue";
 
 const { devices } = useDevicesStore();
+
+const selectedDeviceId = ref<string | null>();
+const selectedEvent = ref<string | null>();
+
+import { computed } from "vue";
+const events = computed(() => {
+  return devices.filter((device) => device.id === selectedDeviceId.value)[0]
+    ?.capabilities.events;
+});
 </script>
 
 <template>
@@ -32,27 +41,50 @@ const { devices } = useDevicesStore();
         </DialogDescription>
       </DialogHeader>
       <form>
-        <div class="grid grid-rows-3">
-          <p>WHEN</p>
-          <Select>
-            <SelectTrigger class="w-[180px]">
-              <SelectValue placeholder="Select a device" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Devices</SelectLabel>
-                <SelectItem
-                  v-for="device in devices"
-                  :key="device.id"
-                  :value="device.id"
-                >
-                  {{ device.name }}
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <p>IS</p>
-          <p>THEN</p>
+        <div class="grid grid-rows-3 gap-2.5">
+          <div class="flex gap-4 items-center">
+            <p class="font-bold text-xl">WHEN</p>
+            <Select v-model="selectedDeviceId">
+              <SelectTrigger class="w-[180px]">
+                <SelectValue placeholder="Select a device" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Devices</SelectLabel>
+                  <SelectItem
+                    v-for="device in devices"
+                    :key="device.id"
+                    :value="device.id"
+                  >
+                    {{ device.name }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div class="flex gap-4 items-center">
+            <p class="font-bold text-xl">IS</p>
+            <Select v-model="selectedEvent" :disabled="events === undefined">
+              <SelectTrigger class="w-[180px]">
+                <SelectValue placeholder="Select an event" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Events</SelectLabel>
+                  <SelectItem
+                    v-for="(item, index) in events"
+                    :key="index"
+                    :value="item"
+                  >
+                    {{ item }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <p class="font-bold text-xl">THEN</p>
         </div>
       </form>
     </DialogContent>

@@ -11,7 +11,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (status.value === "authenticated" && devices.value.length === 0) {
-    // Make sure companies are loaded before deciding
     await loadDevices();
   }
 

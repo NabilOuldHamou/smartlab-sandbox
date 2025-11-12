@@ -19,8 +19,8 @@ const deviceState = ref(props.device.preferences.motionDetected);
 socket.on("device-event", (data: any) => {
   if (data.deviceId === props.device.id) {
     deviceState.value = data.state.motionDetected;
+    // refreshDevice(props.device.id); fix this later
   }
-  // TODO: handle other device events if necessary
 });
 </script>
 

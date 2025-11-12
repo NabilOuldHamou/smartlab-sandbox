@@ -10,7 +10,7 @@ export async function runDiscovery(timeout = 5000) {
   const sock = dgram.createSocket("udp4");
   sock.bind(() => {
     sock.setBroadcast(true);
-    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, "172.20.10.15");
+    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, "192.168.1.255");
   });
 
   sock.on("message", async (msg, rinfo) => {
