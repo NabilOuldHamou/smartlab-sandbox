@@ -1,3 +1,5 @@
+# Nabil mon roi
+version: "3.8"
 services:
   db:
     image: postgres
@@ -10,3 +12,38 @@ services:
       POSTGRES_DB: smartlab
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+
+  light:
+    build:
+      context: ./light
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+
+  motion-sensor:
+    build:
+      context: ./motion-sensor
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+
+  web-interface:
+    build:
+      context: ./web-interface
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - db
+    # Si sushi on spécifie les ports:
+    # ports:
+    #   - "3000:3000"
