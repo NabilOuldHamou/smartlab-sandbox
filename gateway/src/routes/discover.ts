@@ -1,6 +1,7 @@
 import { sign } from "hono/jwt";
 import { prisma } from "../prisma-client.js";
 import { Hono } from "hono";
+import { logger } from "../logger.js";
 
 const SUPPORTED_DEVICE_TYPES = [
   "light_bulb",
@@ -53,7 +54,7 @@ discover.post("/", async (c) => {
       200
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return c.json({ error }, 500);
   }
 });

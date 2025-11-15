@@ -1,4 +1,5 @@
 import { prisma } from "./prisma-client.js";
+import { logger } from "./logger.js";
 
 async function set_power_state(params: any) {
   // todo: update device state in database
@@ -27,7 +28,7 @@ export async function evaluateRule(event: any) {
         const actionFunc = actions[actionName];
         if (typeof actionFunc !== "function") continue;
         await actionFunc(actionObj.params);
-        console.log(`Executed action ${actionName} for rule ${rule.id}`);
+        logger.info(`Executed action ${actionName} for rule ${rule.id}`);
       }
     }
   }

@@ -2,6 +2,7 @@ import dgram from "dgram";
 import { prisma } from "./prisma-client.js";
 import "dotenv/config";
 import { sign } from "hono/jwt";
+import { logger } from "./logger.js";
 
 const DISCOVERY_PORT = 51234;
 const DISCOVERY_MSG = JSON.stringify({ type: "GATEWAY_ACTIVE_DISCOVERY" });
@@ -10,7 +11,7 @@ export async function runDiscovery(timeout = 5000) {
   const sock = dgram.createSocket("udp4");
   sock.bind(() => {
     sock.setBroadcast(true);
-    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, "192.168.1.255");
+    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, "172.25.23.255");
   });
 
   sock.on("message", async (msg, rinfo) => {
@@ -61,7 +62,7 @@ export async function runDiscovery(timeout = 5000) {
         }
       }
     } catch (err) {
-      console.warn(`Invalid response from ${rinfo.address}`, msg.toString());
+      logger.warn(`Invalid response from ${rinfo.address}: ${msg.toString()}`);
     }
   });
 

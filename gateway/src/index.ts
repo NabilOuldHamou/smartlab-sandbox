@@ -7,6 +7,7 @@ import devices from "./routes/devices.js";
 import { cors } from "hono/cors";
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
+import { logger } from "./logger.js";
 
 const app = new Hono();
 
@@ -22,7 +23,7 @@ const server = serve(
     port: 3001,
   },
   (info) => {
-    console.log(`Gateway server running on port : ${info.port}`);
+    logger.info(`Gateway server running on port : ${info.port}`);
   }
 );
 
@@ -36,7 +37,7 @@ export const ioServer = new Server(server as HttpServer, {
 });
 
 ioServer.on("connection", (socket) => {
-  console.log(`Client connected: ${socket.id}`);
+  logger.info(`Client connected: ${socket.id}`);
 });
 
 setInterval(async () => {

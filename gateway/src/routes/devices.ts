@@ -4,6 +4,7 @@ import "dotenv/config";
 import { verifyToken } from "../middleware.js";
 import { evaluateRule } from "../rules-engine.js";
 import { ioServer } from "../index.js";
+import { logger } from "../logger.js";
 
 const devices = new Hono();
 
@@ -89,7 +90,7 @@ devices.post("/:id/event", async (c) => {
 
   const payload_id = (c as any).get("payload_id");
   if (payload_id !== id) {
-    console.warn(
+    logger.warn(
       `Payload ID ${payload_id} does not match device ID ${id}, potential tampering detected.`
     );
     return c.json({ message: "Unauthorized" }, 401);

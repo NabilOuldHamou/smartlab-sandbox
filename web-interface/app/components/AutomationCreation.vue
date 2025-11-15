@@ -14,16 +14,46 @@ import SelectContent from "./ui/select/SelectContent.vue";
 import SelectGroup from "./ui/select/SelectGroup.vue";
 import SelectLabel from "./ui/select/SelectLabel.vue";
 import SelectItem from "./ui/select/SelectItem.vue";
+import Switch from "./ui/switch/Switch.vue";
+import Slider from "./ui/slider/Slider.vue";
+import { computed } from "vue";
 
 const { devices } = useDevicesStore();
 
-const selectedDeviceId = ref<string | null>();
+const selectedSensorId = ref<string | null>();
 const selectedEvent = ref<string | null>();
+const selectedActorId = ref<string | null>();
+const selectedAction = ref<string | null>();
 
-import { computed } from "vue";
+const selectedColor = ref<string>("#000");
+
+const sensors = computed(() => {
+  return devices.filter((device) => device.capabilities.events !== undefined);
+});
+
 const events = computed(() => {
-  return devices.filter((device) => device.id === selectedDeviceId.value)[0]
+  return devices.filter((device) => device.id === selectedSensorId.value)[0]
     ?.capabilities.events;
+});
+
+const actors = computed(() => {
+  return devices.filter((device) => device.capabilities.actions !== undefined);
+});
+
+const actions = computed(() => {
+  return devices.filter((device) => device.id === selectedActorId.value)[0]
+    ?.capabilities.actions;
+});
+
+const actionNames = computed(() => {
+  if (!actions.value) return [];
+  const actionObj = Object.keys(actions.value);
+  return actionObj;
+});
+
+const actionParams = computed(() => {
+  if (!selectedAction.value || !actions.value) return {};
+  return actions.value[selectedAction.value] || {};
 });
 </script>
 
@@ -44,7 +74,7 @@ const events = computed(() => {
         <div class="grid grid-rows-3 gap-2.5">
           <div class="flex gap-4 items-center">
             <p class="font-bold text-xl">WHEN</p>
-            <Select v-model="selectedDeviceId">
+            <Select v-model="selectedSensorId">
               <SelectTrigger class="w-[180px]">
                 <SelectValue placeholder="Select a device" />
               </SelectTrigger>
@@ -52,7 +82,7 @@ const events = computed(() => {
                 <SelectGroup>
                   <SelectLabel>Devices</SelectLabel>
                   <SelectItem
-                    v-for="device in devices"
+                    v-for="device in sensors"
                     :key="device.id"
                     :value="device.id"
                   >
@@ -66,7 +96,7 @@ const events = computed(() => {
           <div class="flex gap-4 items-center">
             <p class="font-bold text-xl">IS</p>
             <Select v-model="selectedEvent" :disabled="events === undefined">
-              <SelectTrigger class="w-[180px]">
+              <SelectTrigger class="w-[200px]">
                 <SelectValue placeholder="Select an event" />
               </SelectTrigger>
               <SelectContent>
@@ -84,7 +114,72 @@ const events = computed(() => {
             </Select>
           </div>
 
-          <p class="font-bold text-xl">THEN</p>
+          <div class="flex gap-4 items-center">
+            <p class="font-bold text-xl">THEN</p>
+            <Select
+              v-model="selectedActorId"
+              :disabled="selectedEvent === undefined"
+            >
+              <SelectTrigger class="w-[180px]">
+                <SelectValue placeholder="Select a device" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Devices</SelectLabel>
+                  <SelectItem
+                    v-for="device in actors"
+                    :key="device.id"
+                    :value="device.id"
+                  >
+                    {{ device.name }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div class="flex gap-4 items-center">
+            <p class="font-bold text-xl">DOES</p>
+            <Select
+              v-model="selectedAction"
+              :disabled="actionNames.length === 0"
+            >
+              <SelectTrigger class="w-[200px]">
+                <SelectValue placeholder="Select an action" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Actions</SelectLabel>
+                  <SelectItem
+                    v-for="actionName in actionNames"
+                    :key="actionName"
+                    :value="actionName"
+                  >
+                    {{ actionName }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div
+            v-if="selectedAction && Object.keys(actionParams).length > 0"
+            class="flex gap-4 items-center"
+          >
+            <p class="font-bold text-xl">TO</p>
+            <div class="flex flex-col gap-2 flex-1">
+              <Switch v-if="actionParams.type === 'boolean'" />
+              <Slider
+                v-if="actionParams.type === 'number'"
+                :default-value="[50]"
+                :min="actionParams.min || 1"
+                :max="actionParams.max || 100"
+                :step="1"
+              />
+            </div>
+          </div>
+
+          <Button>Create Automation</Button>
         </div>
       </form>
     </DialogContent>
