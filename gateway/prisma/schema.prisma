@@ -17,7 +17,7 @@ model Users {
 
 model Devices {
     id           String  @id @default(cuid())
-    name         String? @unique @default("Unnamed Device")
+    name         String? @default("Unnamed Device")
     address      String  @unique
     type         String
     capabilities Json?

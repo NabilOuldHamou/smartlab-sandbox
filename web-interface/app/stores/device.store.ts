@@ -38,12 +38,15 @@ export const useDevicesStore = defineStore("devices", {
       this.initialized = true;
       this.loading = false;
     },
-    refreshDevice(device: Device) {
-      this.devices.forEach((d, index) => {
-        if (d.id === device.id) {
-          this.devices[index] = device;
-        }
+    async refreshDevices() {
+      const { token } = useAuth();
+      const result = await $fetch("http://localhost:3001/api/v1/devices", {
+        method: "GET",
+        headers: {
+          Authorization: token.value!,
+        },
       });
+      this.devices = (result as any).devices;
     },
     async updateDevice(id: string, data: any) {
       const { token } = useAuth();

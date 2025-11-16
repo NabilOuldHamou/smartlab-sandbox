@@ -48,7 +48,7 @@ export async function searchForGateways(timeout = 10000) {
           type: "motion_sensor",
           preferences: currentState,
           capabilities: {
-            events: ["MOTION_DETECTED", "NO_MOTION"],
+            events: ["MOTION_DETECTED", "NO_MOTION_DETECTED"],
           },
         };
         try {

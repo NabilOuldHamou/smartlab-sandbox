@@ -1,26 +1,27 @@
 <script setup lang="ts">
 import { Plus } from "lucide-vue-next";
-import Button from "./ui/button/Button.vue";
-import Dialog from "./ui/dialog/Dialog.vue";
-import DialogContent from "./ui/dialog/DialogContent.vue";
-import DialogDescription from "./ui/dialog/DialogDescription.vue";
-import DialogHeader from "./ui/dialog/DialogHeader.vue";
-import DialogTitle from "./ui/dialog/DialogTitle.vue";
-import DialogTrigger from "./ui/dialog/DialogTrigger.vue";
-import Select from "./ui/select/Select.vue";
-import SelectTrigger from "./ui/select/SelectTrigger.vue";
-import SelectValue from "./ui/select/SelectValue.vue";
-import SelectContent from "./ui/select/SelectContent.vue";
-import SelectGroup from "./ui/select/SelectGroup.vue";
-import SelectLabel from "./ui/select/SelectLabel.vue";
-import SelectItem from "./ui/select/SelectItem.vue";
-import Switch from "./ui/switch/Switch.vue";
+import Card from "~/components/ui/card/Card.vue";
+import Dialog from "~/components/ui/dialog/Dialog.vue";
+import DialogContent from "~/components/ui/dialog/DialogContent.vue";
+import DialogDescription from "~/components/ui/dialog/DialogDescription.vue";
+import DialogHeader from "~/components/ui/dialog/DialogHeader.vue";
+import DialogTitle from "~/components/ui/dialog/DialogTitle.vue";
+import DialogTrigger from "~/components/ui/dialog/DialogTrigger.vue";
+import Select from "~/components/ui/select/Select.vue";
+import SelectTrigger from "~/components/ui/select/SelectTrigger.vue";
+import SelectValue from "~/components/ui/select/SelectValue.vue";
+import SelectContent from "~/components/ui/select/SelectContent.vue";
+import SelectGroup from "~/components/ui/select/SelectGroup.vue";
+import SelectLabel from "~/components/ui/select/SelectLabel.vue";
+import SelectItem from "~/components/ui/select/SelectItem.vue";
+import Switch from "~/components/ui/switch/Switch.vue";
+import Input from "~/components/ui/input/Input.vue";
+import Button from "~/components/ui/button/Button.vue";
 import { computed } from "vue";
 import {
   useAutomationsStore,
   type Automation,
 } from "~/stores/automation.store";
-import Input from "./ui/input/Input.vue";
 
 const { devices } = useDevicesStore();
 const { createAutomation } = useAutomationsStore();
@@ -31,6 +32,7 @@ const selectedEvent = ref<string | null>();
 const selectedActorId = ref<string | null>();
 const selectedAction = ref<string | null>();
 const actionValue = ref<any>();
+const open = ref(false);
 
 const sensors = computed(() => {
   return devices.filter((device) => device.capabilities.events !== undefined);
@@ -78,13 +80,28 @@ const submitAutomation = async () => {
   };
 
   await createAutomation(data);
+  resetForm();
+  open.value = false;
+};
+
+const resetForm = () => {
+  name.value = "";
+  selectedSensorId.value = null;
+  selectedEvent.value = null;
+  selectedActorId.value = null;
+  selectedAction.value = null;
+  actionValue.value = null;
 };
 </script>
 
 <template>
-  <Dialog>
+  <Dialog v-model:open="open">
     <DialogTrigger as-child>
-      <Button class="cursor-pointer"><Plus /> Create</Button>
+      <Card
+        class="flex items-center justify-center min-h-96 cursor-pointer hover:bg-accent/50 transition-colors"
+      >
+        <Plus class="w-12 h-12" />
+      </Card>
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>

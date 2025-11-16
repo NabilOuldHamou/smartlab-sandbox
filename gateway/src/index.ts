@@ -8,6 +8,7 @@ import { cors } from "hono/cors";
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
 import { logger } from "./logger.js";
+import rules from "./routes/rules.js";
 
 const app = new Hono();
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.route("/api/v1/auth", auth);
 app.route("/api/v1/discover", discover);
 app.route("/api/v1/devices", devices);
+app.route("/api/v1/rules", rules);
 
 const server = serve(
   {

@@ -49,7 +49,6 @@ export async function searchForGateways(timeout = 10000) {
           capabilities: {
             actions: {
               SET_POWER: { type: "boolean" },
-              SET_BRIGHTNESS: { type: "number", min: 0, max: 100 },
             },
           },
           preferences: currentState,

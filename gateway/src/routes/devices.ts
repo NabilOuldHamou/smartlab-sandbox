@@ -96,14 +96,14 @@ devices.post("/:id/event", async (c) => {
     return c.json({ message: "Unauthorized" }, 401);
   }
 
-  await evaluateRule(body.event);
-
   await prisma.devices.update({
     where: { id: id },
     data: {
       preferences: body.state,
     },
   });
+
+  await evaluateRule(body.event);
 
   ioServer.emit("device-event", {
     deviceId: id,

@@ -23,11 +23,6 @@ const items = [
     url: "/automation",
     icon: Zap,
   },
-  {
-    title: "Logs",
-    url: "/logs",
-    icon: History,
-  },
 ];
 </script>
 
