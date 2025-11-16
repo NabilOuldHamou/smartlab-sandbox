@@ -16,7 +16,7 @@ definePageMeta({
 });
 </script>
 <template>
-  <Empty v-if="!automations.isReady && automations.automations.length === 0">
+  <Empty v-if="!automations.isReady || automations.automations.length === 0">
     <EmptyHeader>
       <EmptyMedia variant="default">
         <Zap />
