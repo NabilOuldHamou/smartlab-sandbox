@@ -45,11 +45,7 @@ export async function runDiscovery(timeout = 5000) {
                 device.id
               }/heartbeat`,
             },
-            savedState: {
-              brightness: (device.preferences! as any).brightness,
-              color: (device.preferences! as any).color,
-              power: (device.preferences! as any).power,
-            },
+            savedState: device.preferences,
           });
 
           sock.send(Buffer.from(res), rinfo.port, rinfo.address);

@@ -7,6 +7,9 @@ export interface State {
 export const registration = {
   registered: false,
   id: "",
+  token: "",
+  eventRoute: "",
+  heartbeatRoute: "",
 };
 
 export const currentState: State = {

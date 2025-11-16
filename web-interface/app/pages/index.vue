@@ -1,6 +1,14 @@
 <script setup lang="ts">
+import { PlugZap } from "lucide-vue-next";
 import MotionController from "~/components/MotionController.vue";
+import ThermometerController from "~/components/ThermometerController.vue";
 import { socket } from "~/components/socket";
+import Empty from "~/components/ui/empty/Empty.vue";
+import EmptyContent from "~/components/ui/empty/EmptyContent.vue";
+import EmptyDescription from "~/components/ui/empty/EmptyDescription.vue";
+import EmptyHeader from "~/components/ui/empty/EmptyHeader.vue";
+import EmptyMedia from "~/components/ui/empty/EmptyMedia.vue";
+import EmptyTitle from "~/components/ui/empty/EmptyTitle.vue";
 import { Spinner } from "~/components/ui/spinner";
 import { useDevicesStore } from "~/stores/device.store";
 definePageMeta({
@@ -28,6 +36,17 @@ onBeforeUnmount(() => {
     >
       <Spinner class="size-16" />
     </div>
+    <Empty v-else-if="deviceStore.devices.length === 0">
+      <EmptyHeader>
+        <EmptyMedia variant="default">
+          <PlugZap />
+        </EmptyMedia>
+        <EmptyTitle>You don't have any devices yet</EmptyTitle>
+        <EmptyDescription>
+          Turn on your devices and they will appear here automatically.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
     <div
       v-else
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max"
@@ -35,6 +54,10 @@ onBeforeUnmount(() => {
       <div v-for="d in deviceStore.devices" :key="d.id" class="w-full">
         <LightController v-if="d.type === 'light_bulb'" :device="d" />
         <MotionController v-else-if="d.type === 'motion_sensor'" :device="d" />
+        <ThermometerController
+          v-else-if="d.type === 'thermometer'"
+          :device="d"
+        />
       </div>
     </div>
   </main>

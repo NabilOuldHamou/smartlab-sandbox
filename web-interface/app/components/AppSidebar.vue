@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { History, Home, Zap } from "lucide-vue-next";
+import { History, Home, LogOut, Zap } from "lucide-vue-next";
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +10,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import SidebarFooter from "./ui/sidebar/SidebarFooter.vue";
+import Button from "./ui/button/Button.vue";
+
+const { signOut } = useAuth();
+const router = useRouter();
+
+const logout = async () => {
+  router.push("/auth/login");
+  await signOut();
+};
 
 // Menu items.
 const items = [
@@ -45,5 +55,16 @@ const items = [
         </SidebarGroupContent>
       </SidebarGroup>
     </SidebarContent>
+    <SidebarFooter>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild>
+            <Button @click="logout" class="cursor-pointer" variant="outline"
+              ><LogOut /> Sign Out</Button
+            >
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarFooter>
   </Sidebar>
 </template>
