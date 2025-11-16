@@ -213,6 +213,26 @@ const resetForm = () => {
               v-if="actionParams.type === 'boolean'"
               v-model="actionValue"
             />
+            <Select
+              v-else-if="Array.isArray(actionParams)"
+              v-model="actionValue"
+            >
+              <SelectTrigger class="w-full">
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Options</SelectLabel>
+                  <SelectItem
+                    v-for="(option, index) in actionParams"
+                    :key="index"
+                    :value="option"
+                  >
+                    {{ option }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

@@ -26,7 +26,7 @@ export async function searchForGateways(timeout = 10000) {
         const response = JSON.stringify({
           type: "DEVICE_ACTIVE_SEARCH", // for the active discovery
           address: process.env.DEVICE_ADDRESS!,
-          deviceType: "light_bulb",
+          deviceType: "thermometer",
         });
 
         sock.send(Buffer.from(response), rinfo.port, rinfo.address, (err) => {
@@ -45,13 +45,13 @@ export async function searchForGateways(timeout = 10000) {
         registration.registered = true;
         const bodyObj = {
           address: process.env.DEVICE_ADDRESS!,
-          type: "light_bulb",
+          type: "thermometer",
+          preferences: currentState,
           capabilities: {
             actions: {
-              SET_POWER: { type: "boolean" },
+              CHANGE_MODE: ["OFF", "ECO", "COMFORT"],
             },
           },
-          preferences: currentState,
         };
         try {
           const req = await fetch(message.route, {
@@ -76,9 +76,11 @@ export async function searchForGateways(timeout = 10000) {
       } else if (message.type === "DEVICE_ALREADY_REGISTERED") {
         registration.registered = true;
         registration.id = message.id;
-        currentState.brightness = message.savedState.brightness;
-        currentState.color = message.savedState.color;
-        currentState.power = message.savedState.power;
+        registration.token = message.token;
+        currentState.currentTemperature = message.savedState.currentTemperature;
+        currentState.targetTemperature = message.savedState.targetTemperature;
+        currentState.mode = message.savedState.mode;
+        currentState.heating = message.savedState.heating;
         registration.eventRoute = message.routes.events;
         registration.heartbeatRoute = message.routes.heartbeat;
         console.log(

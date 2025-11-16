@@ -9,14 +9,14 @@ import EmptyHeader from "~/components/ui/empty/EmptyHeader.vue";
 import EmptyMedia from "~/components/ui/empty/EmptyMedia.vue";
 import EmptyTitle from "~/components/ui/empty/EmptyTitle.vue";
 
-const { automations, isReady } = useAutomationsStore();
+const automations = useAutomationsStore();
 
 definePageMeta({
   layout: "normal",
 });
 </script>
 <template>
-  <Empty v-if="!isReady && automations.length === 0">
+  <Empty v-if="!automations.isReady && automations.automations.length === 0">
     <EmptyHeader>
       <EmptyMedia variant="default">
         <Zap />
@@ -34,7 +34,7 @@ definePageMeta({
   <main v-else class="w-full max-w-4xl mx-auto px-4">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
       <AutomationCard
-        v-for="automation in automations"
+        v-for="automation in automations.automations"
         :key="automation.id"
         :automation="automation"
       />

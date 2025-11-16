@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import state from "./routes/state.js";
 import { searchForGateways } from "./active-search.js";
 import { checkMovement } from "./event-simulator.js";
+import { registration } from "./stateRegistry.js";
 
 const app = new Hono();
 
@@ -22,5 +23,18 @@ await searchForGateways();
 setInterval(async () => {
   await checkMovement();
 }, 2000);
+
+setInterval(async () => {
+  const heartbeat = await fetch(registration.heartbeatRoute, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${registration.token}`,
+    },
+  });
+
+  const data = await heartbeat.json();
+  registration.token = data.token;
+}, 10000);
 
 export default app;

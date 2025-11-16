@@ -64,7 +64,7 @@ export const useAutomationsStore = defineStore("automations", {
       });
       this.automations.forEach((automation) => {
         if (automation.id === id) {
-          Object.assign(automation, result);
+          Object.assign(automation, (result as any).rule);
         }
       });
     },

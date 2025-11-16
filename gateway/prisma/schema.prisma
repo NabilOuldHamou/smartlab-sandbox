@@ -16,12 +16,13 @@ model Users {
 }
 
 model Devices {
-    id           String  @id @default(cuid())
-    name         String? @default("Unnamed Device")
-    address      String  @unique
+    id           String   @id @default(cuid())
+    name         String?  @default("Unnamed Device")
+    address      String   @unique
     type         String
     capabilities Json?
     preferences  Json
+    lastSeen     DateTime @default(now())
 }
 
 model Rules {

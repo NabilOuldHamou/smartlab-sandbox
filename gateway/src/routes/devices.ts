@@ -5,6 +5,7 @@ import { verifyToken } from "../middleware.js";
 import { evaluateRule } from "../rules-engine.js";
 import { ioServer } from "../index.js";
 import { logger } from "../logger.js";
+import { sign } from "hono/jwt";
 
 const devices = new Hono();
 
@@ -17,7 +18,11 @@ devices.use(verifyToken);
  * Get all devices
  */
 devices.get("/", async (c) => {
-  const devices = await prisma.devices.findMany();
+  const devices = await prisma.devices.findMany({
+    orderBy: {
+      name: "asc",
+    },
+  });
   return c.json({ devices });
 });
 
@@ -49,11 +54,7 @@ devices.post("/:id/action", async (c) => {
 
   const req = await fetch(device?.address + "/api/v1/state", {
     method: "POST",
-    body: JSON.stringify({
-      power: body.power,
-      brightness: body.brightness,
-      color: body.color,
-    }),
+    body: JSON.stringify(body),
   });
   const res = await req.json();
 
@@ -128,6 +129,40 @@ devices.delete("/:id", async (c) => {
   });
 
   return c.json({ message: "Device deleted successfully" });
+});
+
+/**
+ * Device heartbeat - returns a new JWT token
+ */
+devices.post("/:id/heartbeat", async (c) => {
+  const id = c.req.param("id");
+
+  const device = await prisma.devices.findFirst({
+    where: {
+      id: id,
+    },
+  });
+
+  if (!device) {
+    return c.json({ error: "Device not found" }, 404);
+  }
+
+  logger.info(`Received heartbeat from device ${id}`);
+
+  const payload = {
+    id: device.id,
+    exp: Math.floor(Date.now() / 1000) + 3600 * 24, // Token expires in 24 hours
+  };
+
+  await prisma.devices.update({
+    where: { id: id },
+    data: {
+      lastSeen: new Date(),
+    },
+  });
+
+  const token = await sign(payload, process.env.JWT_SECRET!);
+  return c.json({ token });
 });
 
 export default devices;
