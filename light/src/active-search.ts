@@ -1,5 +1,5 @@
 import dgram from "dgram";
-import { capabilities, currentState, registration } from "./stateRegistry.js";
+import { currentState, registration } from "./stateRegistry.js";
 import "dotenv/config";
 
 const DISCOVERY_PORT = 51234;
@@ -46,7 +46,11 @@ export async function searchForGateways(timeout = 10000) {
         const bodyObj = {
           address: process.env.DEVICE_ADDRESS!,
           type: "light_bulb",
-          capabilities,
+          capabilities: {
+            actions: {
+              SET_POWER: { type: "boolean" },
+            },
+          },
           preferences: currentState,
         };
         try {

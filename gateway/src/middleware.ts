@@ -11,7 +11,10 @@ export const verifyToken = async (c: Context, next: () => Promise<void>) => {
   }
 
   try {
-    await verify(token, process.env.JWT_SECRET!);
+    const payload = (await verify(token, process.env.JWT_SECRET!)) as {
+      id?: string;
+    };
+    c.set("payload_id", payload.id);
   } catch (e) {
     c.status(401);
     return c.json({ error: "Invalid token" });

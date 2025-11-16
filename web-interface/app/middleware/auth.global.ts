@@ -1,7 +1,7 @@
 export default defineNuxtRouteMiddleware(async (to) => {
   const { status, token } = useAuth();
   const { loadDevices } = useDevicesStore();
-  const { initialized, devices } = storeToRefs(useDevicesStore());
+  const { loadAutomations } = useAutomationsStore();
 
   if (
     (status.value === "unauthenticated" || !token.value) &&
@@ -10,9 +10,9 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo("/auth/login");
   }
 
-  if (status.value === "authenticated" && devices.value.length === 0) {
-    // Make sure companies are loaded before deciding
+  if (status.value === "authenticated") {
     await loadDevices();
+    await loadAutomations();
   }
 
   if (
