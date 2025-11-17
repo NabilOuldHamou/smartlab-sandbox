@@ -1,52 +1,62 @@
-import { getConnInfo } from "@hono/node-server/conninfo";
+import { sign } from "hono/jwt";
 import { prisma } from "../prisma-client.js";
 import { Hono } from "hono";
+import { logger } from "../logger.js";
+
+const SUPPORTED_DEVICE_TYPES = [
+  "light_bulb",
+  "motion_sensor",
+  "thermometer",
+] as const;
 
 const discover = new Hono();
 
-/**
- * MIDDLEWARE CHECKS FOR JWT TOKEN VALIDITY
- */
-discover.use(async (c, next) => {
-  const authorization = c.req.header("authorization");
-  console.log(authorization);
-  if (!authorization) {
-    c.status(401);
-    return c.json({ error: "Unauthorized" });
-  }
-
-  await next();
-});
-
-discover.get("/", async (c) => {
-  const devices = await prisma.appliance.findMany();
-  return c.json({ devices });
-});
-
 discover.post("/", async (c) => {
   const body = await c.req.json();
-  const info = getConnInfo(c);
-  const address = `${info.remote.address}:${info.remote.port}` || "undefined";
 
-  if (!body.id || !body.type) {
-    return c.json({ error: "id and type are required" }, 400);
+  if (!body.address || !body.type) {
+    return c.json({ error: "address and type are required" }, 400);
   }
 
-  await prisma.appliance
-    .create({
+  if (!SUPPORTED_DEVICE_TYPES.includes(body.type)) {
+    return c.json({ error: "Device type not supported." }, 400);
+  }
+
+  try {
+    const device = await prisma.devices.create({
       data: {
-        address,
-        deviceId: body.id,
+        address: body.address,
         type: body.type,
         capabilities: body.capabilities,
-        preferences: {},
+        preferences: body.preferences,
       },
-    })
-    .catch(() => {
-      return c.json({ error: "An error occurred." }, 500);
     });
 
-  return c.json({ message: "Device successfully registered" }, 200);
+    const payload = {
+      id: device.id,
+      exp: Math.floor(Date.now() / 1000) + 3600 * 24, // Token expires in 24 hours
+    };
+    const token = await sign(payload, process.env.JWT_SECRET!);
+
+    return c.json(
+      {
+        token,
+        device,
+        routes: {
+          events: `${process.env.GATEWAY_ADDRESS!}/api/v1/devices/${
+            device.id
+          }/event`,
+          heartbeat: `${process.env.GATEWAY_ADDRESS!}/api/v1/devices/${
+            device.id
+          }/heartbeat`,
+        },
+      },
+      200
+    );
+  } catch (error) {
+    logger.error(error);
+    return c.json({ error }, 500);
+  }
 });
 
 export default discover;
