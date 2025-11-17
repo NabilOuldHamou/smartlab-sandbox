@@ -49,7 +49,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   <div class="pt-10 flex justify-center">
     <Card class="w-[450px]">
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
+        <CardTitle>Sign Up</CardTitle>
       </CardHeader>
       <CardContent>
         <form class="space-y-4" @submit="onSubmit">
