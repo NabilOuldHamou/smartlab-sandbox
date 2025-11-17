@@ -15,6 +15,11 @@ services:
       POSTGRES_DB: smartlab
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - smartlab-network
 
@@ -31,7 +36,8 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - smartlab-network
 
