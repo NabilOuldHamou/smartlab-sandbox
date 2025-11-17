@@ -1,20 +1,20 @@
 FROM node:20-alpine
 
+ENV CI=true
+
 WORKDIR /app
 
 # Install pnpm
 RUN npm install -g pnpm
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY . .
+
+# Fix line endings for the entrypoint script
+RUN sed -i 's/\r$//' ./entrypoint.sh
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
-
-# Copy source code and schema
-COPY src ./src
-COPY tsconfig.json ./
-COPY prisma ./prisma
 
 # Generate Prisma Client
 RUN pnpm exec prisma generate
@@ -22,8 +22,6 @@ RUN pnpm exec prisma generate
 # Build the application
 RUN pnpm build
 
-# Copy entrypoint script
-COPY entrypoint.sh ./
 RUN chmod +x ./entrypoint.sh
 
 EXPOSE 3001
