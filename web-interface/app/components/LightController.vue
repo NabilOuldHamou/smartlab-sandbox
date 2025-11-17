@@ -13,6 +13,14 @@ const props = defineProps<{
 
 const { updateDevice, renameDevice } = useDevicesStore();
 
+let submitTimeout: NodeJS.Timeout;
+const debouncedSubmit = () => {
+  clearTimeout(submitTimeout);
+  submitTimeout = setTimeout(() => {
+    submit();
+  }, 100);
+};
+
 const deviceColor = ref(props.device.preferences.color);
 const devicePower = ref(props.device.preferences.power);
 const deviceName = ref(props.device.name);
@@ -47,27 +55,6 @@ watch(
 );
 
 watch(
-  () => deviceColor.value,
-  () => {
-    submit();
-  }
-);
-
-watch(
-  () => devicePower.value,
-  () => {
-    submit();
-  }
-);
-
-watch(
-  () => deviceBrightness.value,
-  () => {
-    submit();
-  }
-);
-
-watch(
   () => deviceName.value,
   (newName) => {
     renameDevice(props.device.id, newName);
@@ -87,7 +74,7 @@ const submit = () => {
     <CardHeader>
       <CardTitle class="flex items-center justify-between gap-2">
         <Input class="flex-1 min-w-0" v-model="deviceName" />
-        <Switch v-model="devicePower" />
+        <Switch v-model="devicePower" @update:model-value="debouncedSubmit" />
       </CardTitle>
     </CardHeader>
     <CardContent class="flex-1 flex gap-4 flex-col justify-center">
@@ -97,6 +84,7 @@ const submit = () => {
           type="button"
           class="flex items-center justify-center w-12 h-12 rounded-full border border-gray-200 shadow-sm flex-shrink-0 mx-auto"
           :style="'background-color: ' + deviceColor"
+          @mouseup="debouncedSubmit"
         ></button>
       </color-picker>
       <div class="space-y-2">
@@ -105,6 +93,7 @@ const submit = () => {
           @update:model-value="
             (val) => {
               deviceBrightness = val?.[0] ?? deviceBrightness;
+              debouncedSubmit();
             }
           "
           :min="1"

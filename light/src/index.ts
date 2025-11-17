@@ -17,10 +17,14 @@ serve(
   }
 );
 
-// RUN DISCOVERY ON STARTUP
 await searchForGateways();
 
 setInterval(async () => {
+  if (!registration.registered) {
+    await searchForGateways();
+    return;
+  }
+
   const heartbeat = await fetch(registration.heartbeatRoute, {
     method: "POST",
     headers: {

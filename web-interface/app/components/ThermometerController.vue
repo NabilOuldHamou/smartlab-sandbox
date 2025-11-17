@@ -12,6 +12,14 @@ const props = defineProps<{
 
 const { updateDevice, renameDevice } = useDevicesStore();
 
+let submitTimeout: NodeJS.Timeout;
+const debouncedSubmit = () => {
+  clearTimeout(submitTimeout);
+  submitTimeout = setTimeout(() => {
+    submit();
+  }, 500); // Only submit after 500ms of no changes
+};
+
 const deviceName = ref(props.device.name);
 const currentTemperature = ref(props.device.preferences.currentTemperature);
 const targetTemperature = ref(props.device.preferences.targetTemperature);
@@ -60,19 +68,8 @@ watch(
   }
 );
 
-watch(
-  () => targetTemperature.value,
-  () => {
-    submit();
-  }
-);
-
-watch(
-  () => mode.value,
-  () => {
-    submit();
-  }
-);
+// Don't call submit on these watches - just update the local refs
+// The device store will update from server events instead
 
 const submit = async () => {
   await updateDevice(props.device.id, {
@@ -86,6 +83,7 @@ const cycleMode = () => {
   const currentIndex = modes.indexOf(mode.value);
   const nextIndex = (currentIndex + 1) % modes.length;
   mode.value = modes[nextIndex] as "OFF" | "ECO" | "COMFORT";
+  debouncedSubmit();
 };
 </script>
 

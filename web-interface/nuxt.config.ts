@@ -25,7 +25,8 @@ export default defineNuxtConfig({
     componentDir: "./components/ui",
   },
   auth: {
-    baseURL: "http://localhost:3001/api/v1",
+    baseURL:
+      process.env.NUXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api/v1",
     provider: {
       type: "local",
       session: {
@@ -45,10 +46,10 @@ export default defineNuxtConfig({
         type: "Bearer",
         cookieName: "auth.token",
         headerName: "Authorization",
-        maxAgeInSeconds: 1800,
-        // sameSiteAttribute: 'none',
-        // secureCookieAttribute: true,
-        // httpOnlyCookieAttribute: false,
+        maxAgeInSeconds: 86400,
+        sameSiteAttribute: "lax",
+        secureCookieAttribute: false,
+        httpOnlyCookieAttribute: false,
       },
     },
   },

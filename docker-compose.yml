@@ -1,5 +1,10 @@
-# Nabil mon roi
-version: "3.8"
+networks:
+  smartlab-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
 services:
   db:
     image: postgres
@@ -12,38 +17,78 @@ services:
       POSTGRES_DB: smartlab
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - smartlab-network
 
   gateway:
     build:
       context: ./gateway
       dockerfile: Dockerfile
     restart: always
+    environment:
+      DATABASE_URL: postgres://test_user:example@db:5432/smartlab
+      JWT_SECRET: test
+      GATEWAY_ADDRESS: http://gateway:3001
+      DISCOVERY_BROADCAST_ADDRESS: 172.20.255.255
+    ports:
+      - "3001:3001"
     depends_on:
       - db
+    networks:
+      - smartlab-network
 
   light:
     build:
       context: ./light
       dockerfile: Dockerfile
     restart: always
+    environment:
+      DEVICE_ADDRESS: http://light:3002
+    ports:
+      - "3002:3002"
     depends_on:
-      - db
+      - gateway
+    networks:
+      - smartlab-network
 
   motion-sensor:
     build:
       context: ./motion-sensor
       dockerfile: Dockerfile
     restart: always
+    environment:
+      DEVICE_ADDRESS: http://motion-sensor:3003
+    ports:
+      - "3003:3003"
     depends_on:
-      - db
+      - gateway
+    networks:
+      - smartlab-network
+
+  thermometer:
+    build:
+      context: ./thermometer
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DEVICE_ADDRESS: http://thermometer:3004
+    ports:
+      - "3004:3004"
+    depends_on:
+      - gateway
+    networks:
+      - smartlab-network
 
   web-interface:
     build:
       context: ./web-interface
       dockerfile: Dockerfile
     restart: always
+    environment:
+      NUXT_PUBLIC_API_BASE_URL: http://localhost:3001/api/v1
+    ports:
+      - "3000:3000"
     depends_on:
-      - db
-    # Si sushi on spécifie les ports:
-    # ports:
-    #   - "3000:3000"
+      - gateway
+    networks:
+      - smartlab-network

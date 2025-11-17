@@ -1,9 +1,8 @@
-import { sensitiveHeaders } from "http2";
 import { currentState, registration } from "./stateRegistry.js";
 
 export async function checkMovement() {
   let motionDetected = false;
-  if (Math.random() < 0.3) {
+  if (Math.random() < 0.4) {
     console.log("Motion detected!");
     motionDetected = true;
   }

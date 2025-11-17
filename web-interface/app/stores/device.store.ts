@@ -14,9 +14,16 @@ export const useDevicesStore = defineStore("devices", {
     devices: [] as Device[],
     loading: false,
     initialized: false,
+    override: 0,
+    ticker: 0,
+    tickerInterval: null as NodeJS.Timeout | null,
   }),
   getters: {
     isReady: (state) => state.initialized && !state.loading,
+    isOverride: (state) => {
+      state.ticker;
+      return Date.now() - state.override < 30000;
+    },
   },
   actions: {
     async loadDevices() {
@@ -49,6 +56,25 @@ export const useDevicesStore = defineStore("devices", {
       this.devices = (result as any).devices;
     },
     async updateDevice(id: string, data: any) {
+      this.override = Date.now();
+
+      // Clear existing ticker if any
+      if (this.tickerInterval) {
+        clearInterval(this.tickerInterval);
+      }
+
+      // Start a ticker interval to trigger reactivity updates
+      this.tickerInterval = setInterval(() => {
+        this.ticker++;
+        // Stop ticker if override has expired
+        if (Date.now() - this.override >= 30000) {
+          if (this.tickerInterval) {
+            clearInterval(this.tickerInterval);
+            this.tickerInterval = null;
+          }
+        }
+      }, 500);
+
       const { token } = useAuth();
       const result = await $fetch(
         `http://localhost:3001/api/v1/devices/${id}/action`,

@@ -45,7 +45,7 @@ ioServer.on("connection", (socket) => {
 
 setInterval(async () => {
   await runDiscovery();
-}, 1000);
+}, 2000);
 
 setInterval(async () => {
   const devices = await prisma.devices.findMany();
@@ -64,7 +64,7 @@ setInterval(async () => {
     }
   }
 
-  const existingDeviceIds = devices.map((d) => d.id);
+  const existingDeviceIds = devices.map((d: any) => d.id);
   const allRules = await prisma.rules.findMany();
 
   for (const rule of allRules) {

@@ -9,6 +9,8 @@ import { sign } from "hono/jwt";
 
 const devices = new Hono();
 
+let overrideTimestamp = 0;
+
 /**
  * MIDDLEWARE CHECKS FOR JWT TOKEN VALIDITY
  */
@@ -45,6 +47,8 @@ devices.get("/:id", async (c) => {
 devices.post("/:id/action", async (c) => {
   const id = c.req.param("id");
   const body = await c.req.json();
+
+  overrideTimestamp = Date.now();
 
   const device = await prisma.devices.findFirst({
     where: {
@@ -104,7 +108,13 @@ devices.post("/:id/event", async (c) => {
     },
   });
 
-  await evaluateRule(body.event);
+  if (Date.now() - overrideTimestamp < 30000) {
+    logger.info(
+      `Skipping rule evaluation for device ${id} due to recent manual override.`
+    );
+  } else {
+    await evaluateRule(body.event);
+  }
 
   ioServer.emit("device-event", {
     deviceId: id,

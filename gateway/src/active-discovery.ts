@@ -4,14 +4,16 @@ import "dotenv/config";
 import { sign } from "hono/jwt";
 import { logger } from "./logger.js";
 
-const DISCOVERY_PORT = 51234;
+const DISCOVERY_PORT = 41234;
 const DISCOVERY_MSG = JSON.stringify({ type: "GATEWAY_ACTIVE_DISCOVERY" });
+const BROADCAST_ADDRESS =
+  process.env.DISCOVERY_BROADCAST_ADDRESS || "192.168.1.255";
 
-export async function runDiscovery(timeout = 5000) {
+export async function runDiscovery(timeout = 10000) {
   const sock = dgram.createSocket("udp4");
   sock.bind(() => {
     sock.setBroadcast(true);
-    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, "192.168.1.255");
+    sock.send(Buffer.from(DISCOVERY_MSG), DISCOVERY_PORT, BROADCAST_ADDRESS);
   });
 
   sock.on("message", async (msg, rinfo) => {

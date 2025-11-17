@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlugZap } from "lucide-vue-next";
+import { PlugZap, AlertTriangle } from "lucide-vue-next";
 import MotionController from "~/components/MotionController.vue";
 import ThermometerController from "~/components/ThermometerController.vue";
 import { socket } from "~/components/socket";
@@ -30,6 +30,18 @@ onBeforeUnmount(() => {
 
 <template>
   <main class="w-full max-w-4xl mx-auto px-4">
+    <Transition name="slide-down">
+      <div
+        v-if="deviceStore.isOverride"
+        class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg animate-pulse"
+      >
+        <div class="flex items-center justify-center gap-3 px-4 py-3">
+          <AlertTriangle class="size-5 text-white flex-shrink-0" />
+          <span class="text-white font-semibold">Manual Override Active</span>
+          <AlertTriangle class="size-5 text-white flex-shrink-0" />
+        </div>
+      </div>
+    </Transition>
     <div
       v-if="!deviceStore.isReady"
       class="h-[800px] flex items-center justify-center"
@@ -62,3 +74,20 @@ onBeforeUnmount(() => {
     </div>
   </main>
 </template>
+
+<style scoped>
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-down-enter-from {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.slide-down-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+</style>

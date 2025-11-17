@@ -2,7 +2,7 @@ import dgram from "dgram";
 import { currentState, registration } from "./stateRegistry.js";
 import "dotenv/config";
 
-const DISCOVERY_PORT = 51234;
+const DISCOVERY_PORT = 41234;
 
 export async function searchForGateways(timeout = 10000) {
   const sock = dgram.createSocket("udp4");
