@@ -10,9 +10,17 @@ const auth = new Hono();
 auth.use("/session", verifyToken);
 
 auth.get("/session", async (c) => {
-  const authorization = c.req.header("Authorization")!;
-  const oldToken = authorization.split(" ")[1];
-  const verified = (await verify(oldToken, process.env.JWT_SECRET!)) as {
+  const authorization = c.req.header("Authorization");
+  if (!authorization) {
+    return c.json({ error: "No token provided" }, 401);
+  }
+
+  const token = authorization.split(" ")[1];
+  if (!token) {
+    return c.json({ error: "Invalid token format" }, 401);
+  }
+
+  const verified = (await verify(token, process.env.JWT_SECRET!)) as {
     id?: string;
   } | null;
   if (!verified || typeof verified.id !== "string") {
@@ -23,9 +31,10 @@ auth.get("/session", async (c) => {
     where: {
       id: verified.id,
     },
-    omit: {
-      password: true,
-      createdAt: true,
+    select: {
+      id: true,
+      email: true,
+      username: true,
     },
   });
 
@@ -33,13 +42,7 @@ auth.get("/session", async (c) => {
     return c.json({ error: "User not found" }, 404);
   }
 
-  const newPayload = {
-    id: user.id,
-    exp: Math.floor(Date.now() / 1000) + 3600 * 24, // Token expires in 24 hours
-  };
-
-  const token = await sign(newPayload, process.env.JWT_SECRET!);
-  return c.json({ token, user });
+  return c.json(user);
 });
 
 auth.post("/login", async (c) => {

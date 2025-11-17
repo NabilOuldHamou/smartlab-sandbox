@@ -40,6 +40,7 @@ export default defineNuxtConfig({
         signIn: { path: "/auth/login", method: "post" },
         signUp: { path: "/auth/register", method: "post" },
         getSession: { path: "/auth/session", method: "get" },
+        signOut: { path: "/auth/logout", method: "post" },
       },
       token: {
         signInResponseTokenPointer: "/token",
@@ -51,6 +52,10 @@ export default defineNuxtConfig({
         secureCookieAttribute: false,
         httpOnlyCookieAttribute: false,
       },
+    },
+    sessionRefresh: {
+      enablePeriodically: 10000,
+      enableOnWindowFocus: true,
     },
   },
 });

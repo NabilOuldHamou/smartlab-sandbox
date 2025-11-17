@@ -22,7 +22,7 @@ devices.use(verifyToken);
 devices.get("/", async (c) => {
   const devices = await prisma.devices.findMany({
     orderBy: {
-      name: "asc",
+      id: "asc",
     },
   });
   return c.json({ devices });
